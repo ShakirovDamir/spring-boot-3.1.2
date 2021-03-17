@@ -1,0 +1,138 @@
+- https://start.spring.io - создаем шаблон проекта, прописываем необходимые зависимости;
+starter - набор удобных дескрипторов зависимостей, если вы хотите начать использовать Spring и JPA для доступа к базе данных,
+включите в ваш проект зависимость spring-boot-starter-data-jpa. Стартеры содержат множество зависимостей,
+которые необходимы вам для быстрого запуска и запуска проекта.
+
+- создаем БД в MySQL Workbanch; добавить БД в IDEA;
+
+- добавляем данные в application.properties;
+
+- создаем папку model, добавляем классы/сущности (user, role); (использовать библиотеку lombok);
+@Data - генерирует конструктор, геттеры, сеттеры, методы equals, hashCode, toString. А также делает все поля private.
+
+- создаем папку Repository, добавляем интерфейсы role/user, которые наследуются от CrudRepository;
+
+- создаем папку Service в которой хранится бизнес логика (обертка над репозиторным слоем);
+
+- создаем папку Controller;
+
+- создаем html файлы;
+
+Bootstrap:
+- viewport - метатег для обеспечения правильной визуализации и сенсорного масштабирования, добавляется в <head>.
+- container - Это базовый элемент в Bootstrap и они необходимы при использовании нашей стандартной сеточной системы.
+Контейнеры используются для размещения в них содержимого, дополнений и (иногда) центрирования содержимого внутри них.
+Хотя контейнеры могут быть вложенными, большинство макетов не требуют вложенного контейнера.
+В Bootstrap используется три разных типа контейнеров:
+.container, который устанавливает максимальную ширину max-width в каждой отзывчивой контрольной точке;
+.container-fluid, ширина которого width: 100% на всех контрольных точках;
+.container-{breakpoint}, то есть ширина width: 100% до указанной контрольной точки.
+- row - Система сеток использует контейнеры, ряды и колонки, чтобы удобно располагать содержимое. Бутстрап реализован с помощью флексбокса и полностью адаптивен.
+- fixed-bottom - фиксированной позиции элемента для проекта.
+- row justify-content-center - контейнерами флексбокса для изменения выравнивания гибких элементов по главной оси.
+- Float - cторона выравнивания.
+- navbar - навигационный заголовок Bootstrap/навигационная панель.
+- nav flex-column - навигация по вертикали.
+- tablist - список элементов tab, которые являются ссылками на tabpanel элементы.
+- data-toggle="pill" - активировать вкладку, или таблетку навигации без написания какого-либо JavaScript.
+- nav-tabs - основная навигация сверху и добавляет класс для создания интерфейс с вкладками.
+
+
+role             user            user_roles
+1 ROLE_ADMIN   admin@mail.ru     1       1
+2 ROLE_USER    admin             1       2
+
+
+
+
+
+
+@Data
+@Entity
+public class User implements UserDetails {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private Integer age;
+    private String name, lastName, email, password;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Role> roles;
+
+//    public User() {}
+//
+//    public User(String name, String lastName, int age, String email, String password, Set<Role> roles) {
+//        this.name = name;
+//        this.lastName = lastName;
+//        this.age = age;
+//        this.email = email;
+//        this.password = password;
+//        this.roles = roles;
+//    }
+//    public Long getId() { return id; }
+//
+//    public void setId(Long id) { this.id = id; }
+//
+//    public String getName() { return name; }
+//
+//    public void setName(String name) { this.name = name; }
+//
+//    public String getLastName() { return lastName; }
+//
+//    public void setLastName(String lastName) { this.lastName = lastName; }
+//
+//    public int getAge() { return age; }
+//
+//    public void setAge(Integer age) { this.age = age; }
+//
+//    public String getEmail() { return email; }
+//
+//    public void setEmail(String email) { this.email = email; }
+//
+//    public String getPassword() { return password; }
+//
+//    public void setPassword(String password) { this.password = password; }
+//
+//    public Set<Role> getRoles() { return roles; }
+
+    public void setRoles(String roles) {
+        this.roles = new HashSet<>();
+        if (roles.contains("ROLE_ADMIN")) {
+            this.roles.add(new Role("ROLE_ADMIN"));
+        }
+        if (roles.contains("ROLE_USER")) {
+            this.roles.add(new Role("ROLE_USER"));
+        }
+    }
+
+    //security
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles;
+    }
+
+    @Override
+    public String getUsername() {
+        return name;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+}
